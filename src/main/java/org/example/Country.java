@@ -2,7 +2,7 @@ package org.example;
 
 import java.util.List;
 
-public class Country extends App {
+public class Country{
     private final String country_name;
     private final String full_country_name;
     private final String flag_url;
