@@ -3,10 +3,10 @@ package org.example;
 import java.util.List;
 
 public class Country extends App {
-    private String country_name;
-    private String full_country_name;
-    private String flag_url;
-    private int same_letter_count;
+    private final String country_name;
+    private final String full_country_name;
+    private final String flag_url;
+    private final int same_letter_count;
     private List<Character> First_letter;
 
     public Country(String country_name, String full_country_name, String flag_url, int same_letter_count) {
@@ -14,6 +14,18 @@ public class Country extends App {
         this.full_country_name = full_country_name;
         this.flag_url = flag_url;
         this.same_letter_count = same_letter_count;
+    }
+
+    public String getFull_country_name() {
+        return full_country_name;
+    }
+
+    public String getFlag_url() {
+        return flag_url;
+    }
+
+    public int getSame_letter_count() {
+        return same_letter_count;
     }
 
     public void setFirst_letter(List<Character> first_letter) {

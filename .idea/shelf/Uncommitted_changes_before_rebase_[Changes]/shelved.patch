@@ -1,0 +1,306 @@
+Index: src/main/java/org/example/Country.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example;\r\n\r\nimport java.util.List;\r\n\r\npublic class Country extends App {\r\n    private String country_name;\r\n    private String full_country_name;\r\n    private String flag_url;\r\n    private int same_letter_count;\r\n    private List<Character> First_letter;\r\n\r\n    public Country(String country_name, String full_country_name, String flag_url, int same_letter_count) {\r\n        this.country_name = country_name;\r\n        this.full_country_name = full_country_name;\r\n        this.flag_url = flag_url;\r\n        this.same_letter_count = same_letter_count;\r\n    }\r\n\r\n    public void setFirst_letter(List<Character> first_letter) {\r\n        First_letter = first_letter;\r\n    }\r\n\r\n    public String getCountry_name() {\r\n        return country_name;\r\n    }\r\n\r\n    public int showLetters() {\r\n        int count = 0;\r\n        for (int i = 0; i < First_letter.size(); i++) {\r\n            if (First_letter.get(i).equals(country_name.charAt(0))) {\r\n                count++;\r\n            }\r\n        }\r\n        return count;\r\n    }\r\n\r\n    public void show() {\r\n        System.out.println(\"country: \" + country_name);\r\n        System.out.println(\"full_country_name \" + full_country_name);\r\n        System.out.println(\"same_letter_count \" + same_letter_count);\r\n        System.out.println(\"flag_url \" + flag_url);\r\n        showWords();\r\n        System.out.println(\"Кол-во стран начинающихся на туже букву: \" + showLetters());\r\n        System.out.println();\r\n    }\r\n\r\n    public void showCountry_name(String country_name) {\r\n        if (country_name.equals(this.country_name)) {\r\n            show();\r\n        }\r\n\r\n    }\r\n\r\n    public void showWords() {\r\n        int count = 0;\r\n        if (full_country_name.length() != 0) {\r\n            count++;\r\n            for (int i = 0; i < full_country_name.length(); i++) {\r\n                if (full_country_name.charAt(i) == ' ' || full_country_name.charAt(i) == '-' || full_country_name.charAt(i) == '’') {\r\n                    count++;\r\n                }\r\n            }\r\n        }\r\n        System.out.println(\"Кол-во слов: \" + count);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/Country.java b/src/main/java/org/example/Country.java
+--- a/src/main/java/org/example/Country.java	(revision f70aba0bdd284d9d993820267ab93fc5e5d72220)
++++ b/src/main/java/org/example/Country.java	(date 1675722299689)
+@@ -34,11 +34,27 @@
+         return count;
+     }
+ 
+-    public void show() {
++    public String getFull_country_name() {
++        return full_country_name;
++    }
++
++    public String getFlag_url() {
++        return flag_url;
++    }
++
++    public int getSame_letter_count() {
++        return same_letter_count;
++    }
++
++    public void showmap() {
+         System.out.println("country: " + country_name);
+         System.out.println("full_country_name " + full_country_name);
+         System.out.println("same_letter_count " + same_letter_count);
+         System.out.println("flag_url " + flag_url);
++        System.out.println();
++    }
++    public void show() {
++        showmap();
+         showWords();
+         System.out.println("Кол-во стран начинающихся на туже букву: " + showLetters());
+         System.out.println();
+Index: src/main/java/org/example/App.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example;\r\n\r\n/**\r\n * Hello world!\r\n *\r\n */\r\npublic class App \r\n{\r\n    public static void main( String[] args )\r\n    {\r\n        System.out.println( \"Hello World!\" );\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/App.java b/src/main/java/org/example/App.java
+--- a/src/main/java/org/example/App.java	(revision f70aba0bdd284d9d993820267ab93fc5e5d72220)
++++ b/src/main/java/org/example/App.java	(date 1675723534401)
+@@ -1,13 +1,58 @@
+ package org.example;
+ 
+-/**
+- * Hello world!
+- *
+- */
+-public class App 
+-{
+-    public static void main( String[] args )
+-    {
+-        System.out.println( "Hello World!" );
++import org.jsoup.Jsoup;
++import org.jsoup.nodes.Document;
++import org.jsoup.nodes.Element;
++import org.jsoup.select.Elements;
++
++import java.io.IOException;
++import java.util.*;
++import java.util.stream.Collectors;
++
++
++public class App {
++    public static void main(String[] args) throws IOException {
++        Document doc = Jsoup.connect("https://ru.wikipedia.org/wiki/Список_государств").get();
++        Element table = doc.select("table.wikitable").first();
++
++        Elements rows_names = table.select("td");
++        List<String> Inmormatrion = rows_names.stream().map((i) -> (i.select("td").text())).filter(item -> !item.equals("")).collect(Collectors.toList());
++
++        Elements img_names = table.select("img");
++        List<String> src = new ArrayList<>();
++        for (Element element : img_names) {
++            String[] s = element.attr("srcset").split(" ");
++            src.add("https:" + s[0]);
++        }
++        List<Country> countries = new ArrayList<>();
++        try {
++            for (int i = 0; i < src.size(); i++) {
++                countries.add(new Country(Inmormatrion.get(i * 3 + 1), Inmormatrion.get(i * 3 + 2), src.get(i), Integer.parseInt(Inmormatrion.get(i * 3))));
++            }
++        } catch (IndexOutOfBoundsException e) {
++        }
++        List<Character> First_letter = countries.stream().map(i -> i.getCountry_name().charAt(0)).collect(Collectors.toList());
++        countries.forEach(i -> i.setFirst_letter(First_letter));
++        countries.forEach(i -> i.show());
++
++        //словарь
++        Map <String,List> map=new HashMap<>();
++        for (int i = 0; i < countries.size(); i++) {
++            List<Map> array=new ArrayList<>();
++            Map <String,String> final_map=new HashMap<>();
++            final_map.put("country_name",countries.get(i).getCountry_name());
++            final_map.put("full_country_name",countries.get(i).getFull_country_name());
++            final_map.put("same_letter_count",Integer. toString(countries.get(i).getSame_letter_count()));
++            final_map.put("flag_url",countries.get(i).getFlag_url());
++            array.add(final_map);
++            map.put(countries.get(i).getCountry_name(),array);
++        }
++        scan(map);
++
++    }
++    public static void scan(Map <String,List> map) {
++        Scanner scanner = new Scanner(System.in);
++        String scan = scanner.nextLine();
++        System.out.println(map.get(scan));
+     }
+ }
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n  <modelVersion>4.0.0</modelVersion>\r\n\r\n  <groupId>org.example</groupId>\r\n  <artifactId>Homework</artifactId>\r\n  <version>1.0-SNAPSHOT</version>\r\n\r\n  <name>Homework</name>\r\n  <!-- FIXME change it to the project's website -->\r\n  <url>http://www.example.com</url>\r\n\r\n  <properties>\r\n    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\r\n    <maven.compiler.source>1.7</maven.compiler.source>\r\n    <maven.compiler.target>1.7</maven.compiler.target>\r\n  </properties>\r\n\r\n  <dependencies>\r\n    <dependency>\r\n      <groupId>junit</groupId>\r\n      <artifactId>junit</artifactId>\r\n      <version>4.11</version>\r\n      <scope>test</scope>\r\n    </dependency>\r\n  </dependencies>\r\n\r\n  <build>\r\n    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->\r\n      <plugins>\r\n        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->\r\n        <plugin>\r\n          <artifactId>maven-clean-plugin</artifactId>\r\n          <version>3.1.0</version>\r\n        </plugin>\r\n        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->\r\n        <plugin>\r\n          <artifactId>maven-resources-plugin</artifactId>\r\n          <version>3.0.2</version>\r\n        </plugin>\r\n        <plugin>\r\n          <artifactId>maven-compiler-plugin</artifactId>\r\n          <version>3.8.0</version>\r\n        </plugin>\r\n        <plugin>\r\n          <artifactId>maven-surefire-plugin</artifactId>\r\n          <version>2.22.1</version>\r\n        </plugin>\r\n        <plugin>\r\n          <artifactId>maven-jar-plugin</artifactId>\r\n          <version>3.0.2</version>\r\n        </plugin>\r\n        <plugin>\r\n          <artifactId>maven-install-plugin</artifactId>\r\n          <version>2.5.2</version>\r\n        </plugin>\r\n        <plugin>\r\n          <artifactId>maven-deploy-plugin</artifactId>\r\n          <version>2.8.2</version>\r\n        </plugin>\r\n        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->\r\n        <plugin>\r\n          <artifactId>maven-site-plugin</artifactId>\r\n          <version>3.7.1</version>\r\n        </plugin>\r\n        <plugin>\r\n          <artifactId>maven-project-info-reports-plugin</artifactId>\r\n          <version>3.0.0</version>\r\n        </plugin>\r\n      </plugins>\r\n    </pluginManagement>\r\n  </build>\r\n</project>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision f70aba0bdd284d9d993820267ab93fc5e5d72220)
++++ b/pom.xml	(date 1675680423114)
+@@ -14,11 +14,18 @@
+ 
+   <properties>
+     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+-    <maven.compiler.source>1.7</maven.compiler.source>
+-    <maven.compiler.target>1.7</maven.compiler.target>
++    <maven.compiler.source>11</maven.compiler.source>
++    <maven.compiler.target>11</maven.compiler.target>
+   </properties>
+ 
+   <dependencies>
++    <dependency>
++      <!-- jsoup HTML parser library @ https://jsoup.org/ -->
++      <groupId>org.jsoup</groupId>
++      <artifactId>jsoup</artifactId>
++      <version>1.11.2</version>
++    </dependency>
++
+     <dependency>
+       <groupId>junit</groupId>
+       <artifactId>junit</artifactId>
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"9ecfd939-01e4-40b8-9cc7-391a3ba11df8\" name=\"Changes\" comment=\"\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"2LMTC5aY0WaClcR590SdvCSEs1o\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"WebServerToolWindowFactoryState\": \"false\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"9ecfd939-01e4-40b8-9cc7-391a3ba11df8\" name=\"Changes\" comment=\"\" />\r\n      <created>1675679822352</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1675679822352</updated>\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision f70aba0bdd284d9d993820267ab93fc5e5d72220)
++++ b/.idea/workspace.xml	(date 1675723426191)
+@@ -1,24 +1,77 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="9ecfd939-01e4-40b8-9cc7-391a3ba11df8" name="Changes" comment="" />
++    <list default="true" id="9ecfd939-01e4-40b8-9cc7-391a3ba11df8" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/App.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Country.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Country.java" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
+   </component>
++  <component name="FileTemplateManagerImpl">
++    <option name="RECENT_TEMPLATES">
++      <list>
++        <option value="Class" />
++      </list>
++    </option>
++  </component>
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++    <option name="UPDATE_TYPE" value="REBASE" />
++  </component>
++  <component name="MarkdownSettingsMigration">
++    <option name="stateVersion" value="1" />
+   </component>
+   <component name="ProjectId" id="2LMTC5aY0WaClcR590SdvCSEs1o" />
+-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "RunOnceActivity.OpenProjectViewOnStart": "true",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "WebServerToolWindowFactoryState": "false"
++  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
++    <ConfirmationsSetting value="1" id="Add" />
++  </component>
++  <component name="ProjectViewState">
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;
++  },
++  &quot;keyToStringList&quot;: {
++    &quot;ChangesTree.GroupingKeys&quot;: [
++      &quot;module&quot;
++    ]
+   }
+-}]]></component>
++}</component>
++  <component name="RunManager">
++    <configuration name="org.example.App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="org.example.App" />
++      <module name="Homework" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="org.example.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
++      <method v="2">
++        <option name="Make" enabled="true" />
++      </method>
++    </configuration>
++    <recent_temporary>
++      <list>
++        <item itemvalue="Application.org.example.App" />
++      </list>
++    </recent_temporary>
++  </component>
+   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
+     <task active="true" id="Default" summary="Default task">
+@@ -27,15 +80,36 @@
+       <option name="number" value="Default" />
+       <option name="presentableId" value="Default" />
+       <updated>1675679822352</updated>
++      <workItem from="1675679823850" duration="19408000" />
++      <workItem from="1675714765793" duration="1914000" />
++      <workItem from="1675716777842" duration="1882000" />
++      <workItem from="1675718692330" duration="604000" />
++      <workItem from="1675719311191" duration="381000" />
++      <workItem from="1675720671548" duration="2732000" />
+     </task>
+     <servers />
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
+   </component>
+   <component name="Vcs.Log.Tabs.Properties">
+     <option name="TAB_STATES">
+       <map>
+         <entry key="MAIN">
+           <value>
+-            <State />
++            <State>
++              <option name="FILTERS">
++                <map>
++                  <entry key="branch">
++                    <value>
++                      <list>
++                        <option value="master" />
++                      </list>
++                    </value>
++                  </entry>
++                </map>
++              </option>
++            </State>
+           </value>
+         </entry>
+       </map>
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_X\" default=\"true\" project-jdk-name=\"19\" project-jdk-type=\"JavaSDK\">\r\n    <output url=\"file://$PROJECT_DIR$/out\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision f70aba0bdd284d9d993820267ab93fc5e5d72220)
++++ b/.idea/misc.xml	(date 1675679859035)
+@@ -1,6 +1,13 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ExternalStorageConfigurationManager" enabled="true" />
++  <component name="MavenProjectsManager">
++    <option name="originalFiles">
++      <list>
++        <option value="$PROJECT_DIR$/pom.xml" />
++      </list>
++    </option>
++  </component>
+   <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="19" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/out" />
+   </component>
